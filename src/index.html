@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Socket IO User Management</title>
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <h1>User List</h1>
+    <ul id="user-list"></ul>
+
+    <h2>Create New User</h2>
+    <form id="user-form">
+      <input
+        type="text"
+        id="user-username"
+        placeholder="Enter username"
+        required
+      />
+      <input type="email" id="user-email" placeholder="Enter email" required />
+      <input
+        type="password"
+        id="user-password"
+        placeholder="Enter password"
+        required
+      />
+      <button type="submit">Create User</button>
+    </form>
+
+    <script>
+      const socket = io();
+
+      // Listen for the getUser event from the server
+      socket.on("getUser", (users) => {
+        const userList = document.getElementById("user-list");
+        userList.innerHTML = ""; // Clear the list before adding new items
+
+        users.forEach((user) => {
+          const listItem = document.createElement("li");
+          listItem.textContent = `ID: ${user.id}, Username: ${user.username}, Email: ${user.email}`;
+          userList.appendChild(listItem);
+        });
+      });
+
+      // Handle form submission for creating a new user
+      document
+        .getElementById("user-form")
+        .addEventListener("submit", (event) => {
+          event.preventDefault();
+
+          const username = document.getElementById("user-username").value;
+          const email = document.getElementById("user-email").value;
+          const password = document.getElementById("user-password").value;
+
+          // Emit createUser event to the server
+          socket.emit("createUser", { username, email, password });
+
+          // Clear the form fields
+          document.getElementById("user-username").value = "";
+          document.getElementById("user-email").value = "";
+          document.getElementById("user-password").value = "";
+        });
+    </script>
+  </body>
+</html>
